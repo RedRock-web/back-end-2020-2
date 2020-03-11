@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"back-end-2020-1/dao/dao_mysql"
 	"back-end-2020-1/errors"
+	"back-end-2020-1/router"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -37,14 +38,9 @@ func RedisInit() {
 
 }
 
+//RouterInit 初始化 router
 func RouterInit() {
 	r := gin.Default()
-
-	r.POST("/register")
-	r.POST("/login")
-	r.POST("/enter")
-	r.POST("/retire")
-	r.GET("/leader_board")
-
+	router.SetupRouter(r)
 	r.Run()
 }
