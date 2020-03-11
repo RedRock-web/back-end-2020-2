@@ -1,4 +1,1 @@
 package router
-
-func A() {
-}

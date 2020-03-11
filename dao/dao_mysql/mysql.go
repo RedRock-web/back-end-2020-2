@@ -1,4 +1,4 @@
-package dao_my
+package dao_mysql
 
 import (
 	"github.com/jinzhu/gorm"
@@ -16,7 +16,7 @@ type User struct {
 	Vote_num             int `gorm:"default:0"`
 }
 
-//G_db 用于存储 dao_my 数据库
+//G_db 用于存储 dao_mysql 数据库
 var G_db *gorm.DB
 
 type DbLoginForm struct {
