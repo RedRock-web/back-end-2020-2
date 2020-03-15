@@ -7,6 +7,8 @@ import (
 	"back-end-2020-1/response"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"sort"
+	"strconv"
 )
 
 func Enter(c *gin.Context) {
@@ -37,12 +39,12 @@ func HaveEnter() bool {
 
 func Vote(c *gin.Context) {
 	targe := c.PostForm("targe")
-	fmt.Println(targe)
 	if TargeIsLegal(targe) {
 		if HaveVote(targe) {
 			response.Error(c, 10010, "had vote!")
 		} else {
 			dao.G_client.SAdd(targe+"Votes", account.G_username)
+			dao.G_client.HIncrBy("player", targe, 1)
 		}
 	} else {
 		response.FormError(c)
@@ -54,6 +56,7 @@ func CancelVote(c *gin.Context) {
 	if TargeIsLegal(targe) {
 		if HaveVote(targe) {
 			dao.G_client.SRem(targe+"Votes", account.G_username)
+			dao.G_client.HIncrBy("player", targe, -1)
 		} else {
 			response.Error(c, 10010, "have not vote!")
 		}
@@ -69,4 +72,55 @@ func TargeIsLegal(targe string) bool {
 func HaveVote(targe string) (flag bool) {
 	flag, _ = dao.G_client.SIsMember(targe+"Votes", account.G_username).Result()
 	return flag
+}
+
+type Pair struct {
+	name string
+	num  int
+}
+type PairList []Pair
+
+func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p PairList) Len() int           { return len(p) }
+func (p PairList) Less(i, j int) bool { return p[i].num < p[j].num }
+func sortMapByValue(m map[string]int) PairList {
+	p := make(PairList, len(m))
+	i := 0
+	for k, v := range m {
+		p[i] = Pair{k, v}
+		i++
+	}
+	sort.Sort(p)
+	return p
+}
+
+func GetBoard(c *gin.Context) {
+	playerStatus := make(map[string]int, 10)
+
+	aVoteNum, _ := dao.G_client.HGet("player", "a").Result()
+	fmt.Println(aVoteNum)
+	playerStatus["a"], _ = strconv.Atoi(aVoteNum)
+
+	bVoteNum, _ := dao.G_client.HGet("player", "b").Result()
+	playerStatus["b"], _ = strconv.Atoi(bVoteNum)
+
+	cVoteNum, _ := dao.G_client.HGet("player", "c").Result()
+	playerStatus["c"], _ = strconv.Atoi(cVoteNum)
+
+	dVoteNum, _ := dao.G_client.HGet("player", "d").Result()
+	playerStatus["d"], _ = strconv.Atoi(dVoteNum)
+
+	eVoteNum, _ := dao.G_client.HGet("player", "e").Result()
+	playerStatus["e"], _ = strconv.Atoi(eVoteNum)
+	p := sortMapByValue(playerStatus)
+
+	data := []gin.H{}
+	for k, v := range p {
+		data = append(data, gin.H{
+			"rank":     k,
+			"name":     v.name,
+			"vote_num": v.num,
+		})
+	}
+	response.OkWithData(c, data)
 }

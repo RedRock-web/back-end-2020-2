@@ -49,6 +49,8 @@ func Login(c *gin.Context) {
 	token := GetJwt(f, "error")
 
 	if IsLogin(c) {
+		c.SetCookie("auth", token, 1000, "/", "127.0.0.1:8080", false, true)
+		G_username = f.Username
 		response.OkWithData(c, "aready login!")
 	} else if err := c.ShouldBindJSON(&f); err != nil {
 		errors.New("bind json error!")

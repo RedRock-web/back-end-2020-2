@@ -22,11 +22,11 @@ func RedisInit() {
 	dao.G_client, _ = dao.CreateClient()
 	//使用 hash 初始化 5 位参赛选手
 	player := map[string]string{
-		"a": "0",
-		"b": "0",
-		"c": "0",
-		"d": "0",
-		"e": "0",
+		"a": "30",
+		"b": "10",
+		"c": "20",
+		"d": "50",
+		"e": "40",
 	}
 	dao.G_client.HMSet("player", player)
 }
