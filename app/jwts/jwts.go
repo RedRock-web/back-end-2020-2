@@ -63,6 +63,8 @@ func (j *Jwt) Check(token string, key string) (config.LoginForm, error) {
 
 	//对 payload 解密
 	pay, err := base64.StdEncoding.DecodeString(arr[1])
+	fmt.Println("CCCCCCCCC")
+	fmt.Println(string(pay))
 	if err != nil {
 		return config.LoginForm{}, errors.New("token error!")
 	}
