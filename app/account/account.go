@@ -24,13 +24,6 @@ func Register(c *gin.Context) {
 	}
 }
 
-func BindJson(c *gin.Context) (f config.LoginForm, err error) {
-	if err = c.BindJSON(&f); err != nil {
-		return f, err
-	}
-	return f, nil
-}
-
 func IsRegiste(username string) bool {
 	var user dao_mysql.User
 	dao_mysql.G_db.Where("username = ?", username).First(&user)
@@ -47,15 +40,22 @@ func GetJwt(f config.LoginForm, errMsg string) string {
 }
 
 func Login(c *gin.Context) {
-	f, _ := BindJson(c)
-	if PasswdIsOk(f) {
-		token := GetJwt(f, "get jwt error when login")
-		response.OkWithData(c, token)
+	f := config.LoginForm{}
+	token := GetJwt(f, "error")
+
+	if err := c.ShouldBindJSON(&f); err != nil {
+		errors.New("bind json error!")
+		response.FormError(c)
+	} else if IsLogin(c) {
+		response.Ok(c)
 	} else {
-		if IsRegiste(f.Username) {
+		if !IsRegiste(f.Username) {
+			response.Error(c, 10005, "unregistered!")
+		} else if !PasswdIsOk(f) {
 			response.Error(c, 10004, "password error!")
 		} else {
-			response.Error(c, 10005, "unregistered!")
+			response.Ok(c)
+			c.SetCookie("auth", token, 1000, "/", "127.0.0.1", false, true)
 		}
 	}
 }
@@ -67,4 +67,15 @@ func PasswdIsOk(f config.LoginForm) bool {
 		Password: f.Password,
 	}).First(&user)
 	return user.ID != 0
+}
+
+func IsLogin(c *gin.Context) bool {
+	token, err := c.Cookie("auth")
+	return TokenIsOk(token) && err == nil
+}
+
+func TokenIsOk(token string) bool {
+	j := jwts.NewJwt()
+	_, err := j.Check(token, "redrock")
+	return err == nil
 }

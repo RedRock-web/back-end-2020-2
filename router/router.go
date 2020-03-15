@@ -7,7 +7,7 @@ import (
 
 func SetupRouter(r *gin.Engine) {
 	r.POST("/register", account.Register)
-	r.POST("/login")
+	r.POST("/login", account.Login)
 	r.POST("/enter")
 	r.POST("/retire")
 	r.GET("/leader_board")
