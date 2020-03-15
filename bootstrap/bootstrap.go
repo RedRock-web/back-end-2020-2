@@ -18,6 +18,7 @@ func Init() {
 //使用 hash 存储 player，key 为参赛选手名字，value 为票数
 //使用 hash 存储 users，key 为用户 username, value 为 password
 //使用 set 存储 status，存储参与投票的用户
+//使用 hash 存储 user_vote_num, key 为 username, value 为 vote num
 func RedisInit() {
 	dao.G_client, _ = dao.CreateClient()
 	//使用 hash 初始化 5 位参赛选手

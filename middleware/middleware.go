@@ -32,3 +32,14 @@ func AuthCheck() gin.HandlerFunc {
 		}
 	}
 }
+
+func CheckVoteNum() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if game.CanVote() {
+			c.Next()
+		} else {
+			response.Error(c, 10011, "vote num already being 3")
+			c.Abort()
+		}
+	}
+}

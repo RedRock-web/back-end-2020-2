@@ -45,6 +45,7 @@ func Vote(c *gin.Context) {
 		} else {
 			dao.G_client.SAdd(targe+"Votes", account.G_username)
 			dao.G_client.HIncrBy("player", targe, 1)
+			dao.G_client.HIncrBy("user_vote_num", targe, 1)
 		}
 	} else {
 		response.FormError(c)
@@ -57,6 +58,7 @@ func CancelVote(c *gin.Context) {
 		if HaveVote(targe) {
 			dao.G_client.SRem(targe+"Votes", account.G_username)
 			dao.G_client.HIncrBy("player", targe, -1)
+			dao.G_client.HIncrBy("user_vote_num", targe, 1)
 		} else {
 			response.Error(c, 10010, "have not vote!")
 		}
@@ -78,6 +80,7 @@ type Pair struct {
 	name string
 	num  int
 }
+
 type PairList []Pair
 
 func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
@@ -123,4 +126,10 @@ func GetBoard(c *gin.Context) {
 		})
 	}
 	response.OkWithData(c, data)
+}
+
+func CanVote() bool {
+	tempNum, _ := dao.G_client.HGet("user_vote_num", account.G_username).Result()
+	num, _ := strconv.Atoi(tempNum)
+	return num <= 3 && num >= 0
 }

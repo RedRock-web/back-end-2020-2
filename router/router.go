@@ -19,7 +19,7 @@ func SetupRouter(r *gin.Engine) {
 
 		v := g.Group("/", middleware.CheckHaveEnterGame())
 		{
-			v.POST("/vote", game.Vote)
+			v.POST("/vote", middleware.CheckVoteNum(), game.Vote)
 			v.POST("/cancel_vote", game.CancelVote)
 		}
 	}

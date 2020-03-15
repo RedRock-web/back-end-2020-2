@@ -6,7 +6,6 @@ import (
 	"back-end-2020-1/dao"
 	"back-end-2020-1/response"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,8 +21,7 @@ func Register(c *gin.Context) {
 		response.Error(c, 10003, "user exist!")
 	} else {
 		dao.G_client.HSet("users", f.Username, f.Password)
-		fmt.Println("ppppppppppppp")
-		fmt.Println(f)
+		dao.G_client.HSet("user_vote_num", f.Username, "3")
 		token := GetJwt(f, "register create jwt error!")
 		c.SetCookie("auth", token, 1000, "/", "127.0.0.1:8080", false, true)
 		G_username = f.Username
