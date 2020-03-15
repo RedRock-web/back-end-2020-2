@@ -133,3 +133,7 @@ func CanVote() bool {
 	num, _ := strconv.Atoi(tempNum)
 	return num <= 3 && num >= 0
 }
+
+func RestoreVoteNum() {
+	dao.G_client.HMSet("user_vote_num", map[string]string{"a": "0", "b": "0", "c": "0", "d": "0", "e": "0"})
+}

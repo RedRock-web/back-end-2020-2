@@ -1,11 +1,11 @@
 package bootstrap
 
 import (
+	"back-end-2020-1/app/game"
 	"back-end-2020-1/dao"
 	"back-end-2020-1/router"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/robfig/cron"
 )
 
 //Init() 初始化项目
@@ -23,11 +23,11 @@ func RedisInit() {
 	dao.G_client, _ = dao.CreateClient()
 	//使用 hash 初始化 5 位参赛选手
 	player := map[string]string{
-		"a": "30",
-		"b": "10",
-		"c": "20",
-		"d": "50",
-		"e": "40",
+		"a": "0",
+		"b": "0",
+		"c": "0",
+		"d": "0",
+		"e": "0",
 	}
 	dao.G_client.HMSet("player", player)
 }
@@ -37,4 +37,14 @@ func RouterInit() {
 	r := gin.Default()
 	router.SetupRouter(r)
 	r.Run()
+}
+
+func cronInit() {
+	go func() {
+		crontab := cron.New()
+		crontab.AddFunc("0 0 0 * * *", func() {
+			game.RestoreVoteNum()
+		})
+		crontab.Start()
+	}()
 }
