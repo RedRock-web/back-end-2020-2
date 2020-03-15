@@ -1,13 +1,19 @@
 package middleware
 
 import (
+	"back-end-2020-1/app/game"
 	"back-end-2020-1/response"
 	"github.com/gin-gonic/gin"
 )
 
 func CheckHaveEnterGame() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
+		if game.HaveEnter() {
+			c.Next()
+		} else {
+			response.Error(c, 10011, "needed enter game!")
+			c.Abort()
+		}
 	}
 }
 
