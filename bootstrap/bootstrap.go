@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"back-end-2020-1/dao/redis"
+	"back-end-2020-1/dao"
 	"back-end-2020-1/router"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -15,7 +15,8 @@ func Init() {
 }
 
 func RedisInit() {
-	client, _ := redis.CreateClient()
+	dao.G_client, _ = dao.CreateClient()
+	//使用 hash 初始化 5 位参赛选手
 	player := map[string]string{
 		"a": "0",
 		"b": "0",
@@ -23,7 +24,7 @@ func RedisInit() {
 		"d": "0",
 		"e": "0",
 	}
-	client.HMSet("player", player)
+	dao.G_client.HMSet("player", player)
 }
 
 //RouterInit 初始化 router

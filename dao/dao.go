@@ -1,8 +1,10 @@
-package redis
+package dao
 
 import (
 	"gopkg.in/redis.v4"
 )
+
+var G_client *redis.Client
 
 func CreateClient() (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{

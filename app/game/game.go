@@ -2,7 +2,6 @@ package game
 
 import (
 	"back-end-2020-1/app/account"
-	"back-end-2020-1/dao/dao_mysql"
 	"back-end-2020-1/errors"
 	"back-end-2020-1/response"
 	"github.com/gin-gonic/gin"

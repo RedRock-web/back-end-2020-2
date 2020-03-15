@@ -3,7 +3,7 @@ package account
 import (
 	"back-end-2020-1/app/jwts"
 	"back-end-2020-1/config"
-	"back-end-2020-1/dao/dao_mysql"
+	"back-end-2020-1/dao"
 	"back-end-2020-1/response"
 	"errors"
 	"fmt"
@@ -21,7 +21,7 @@ func Register(c *gin.Context) {
 	} else if IsRegiste(f.Username) {
 		response.Error(c, 10003, "user exist!")
 	} else {
-		dao_mysql.Insert(dao_mysql.User{Username: f.Username, Password: f.Password}, "register insert record error!")
+		dao.G_client.HSet("users", f.Username, f.Password)
 		token := GetJwt(f, "register create jwt error!")
 		c.SetCookie("auth", token, 1000, "/", "127.0.0.1:8080", false, true)
 		G_username = f.Username
@@ -29,9 +29,8 @@ func Register(c *gin.Context) {
 }
 
 func IsRegiste(username string) bool {
-	var user dao_mysql.User
-	dao_mysql.G_db.Where("username = ?", username).First(&user)
-	return user.ID != 0
+	_, err := dao.G_client.HGet("users", username).Result()
+	return err == nil
 }
 
 func GetJwt(f config.LoginForm, errMsg string) string {
@@ -68,12 +67,8 @@ func Login(c *gin.Context) {
 }
 
 func PasswdIsOk(f config.LoginForm) bool {
-	var user dao_mysql.User
-	dao_mysql.G_db.Where(dao_mysql.User{
-		Username: f.Username,
-		Password: f.Password,
-	}).First(&user)
-	return user.ID != 0
+	passwd, _ := dao.G_client.HGet("users", f.Username).Result()
+	return passwd == f.Password
 }
 
 func IsLogin(c *gin.Context) bool {
