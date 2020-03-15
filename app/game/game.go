@@ -30,9 +30,6 @@ func Retire(c *gin.Context) {
 }
 
 func HaveEnter() bool {
-	_, err := dao.G_client.SIsMember("status", account.G_username).Result()
-	fmt.Println("AAAAAAAAA")
-	fmt.Println(account.G_username)
-	fmt.Println(err)
-	return err == nil
+	flag, _ := dao.G_client.SIsMember("status", account.G_username).Result()
+	return flag
 }
