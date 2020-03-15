@@ -1,6 +1,7 @@
 package dao_mysql
 
 import (
+	"errors"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
@@ -28,4 +29,13 @@ type DbLoginForm struct {
 func Connect(form DbLoginForm) (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", form.Username+":"+form.Password+"@(127.0.0.1:3306)/"+form.DbName+"?charset=utf8&parseTime=true")
 	return db, err
+}
+
+func Insert(i interface{}, errMsg string) error {
+	u := i.(User)
+	if err := G_db.Create(&u).Error; err != nil {
+		errors.New(errMsg)
+		return err
+	}
+	return nil
 }

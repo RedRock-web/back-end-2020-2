@@ -1,7 +1,7 @@
 package jwts
 
 import (
-	account_ "back-end-2020-1/app/account "
+	"back-end-2020-1/config"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -15,7 +15,7 @@ import (
 
 //Jwt struct 表示一个 json web token
 type Jwt struct {
-	form      account_.LoginForm
+	form      config.LoginForm
 	Header    Header
 	Payload   Payload
 	Signature Signature
@@ -27,7 +27,7 @@ func NewJwt() Jwt {
 }
 
 //Create 返回 一个 特定的 Jwt
-func (j *Jwt) Create(form account_.LoginForm, key string) (string, error) {
+func (j *Jwt) Create(form config.LoginForm, key string) (string, error) {
 	j.form = form
 	j.Signature.key = key
 
@@ -48,41 +48,41 @@ func (j *Jwt) Create(form account_.LoginForm, key string) (string, error) {
 	return hAndp + "." + signature, nil
 }
 
-func (j *Jwt) Check(token string, key string) (account_.LoginForm, error) {
+func (j *Jwt) Check(token string, key string) (config.LoginForm, error) {
 	//首先把 token 和划分为 3 部分
 	arr := strings.Split(token, ".")
 	if len(arr) != 3 {
-		return account_.LoginForm{}, errors.New("token error!")
+		return config.LoginForm{}, errors.New("token error!")
 	}
 
 	//对 Header 解密
 	_, err := base64.StdEncoding.DecodeString(arr[0])
 	if err != nil {
-		return account_.LoginForm{}, errors.New("token error!")
+		return config.LoginForm{}, errors.New("token error!")
 	}
 
 	//对 payload 解密
 	pay, err := base64.StdEncoding.DecodeString(arr[1])
 	if err != nil {
-		return account_.LoginForm{}, errors.New("token error!")
+		return config.LoginForm{}, errors.New("token error!")
 	}
 
 	//对 signature 解密
 	_, err = base64.StdEncoding.DecodeString(arr[2])
 	if err != nil {
-		return account_.LoginForm{}, errors.New("token error!")
+		return config.LoginForm{}, errors.New("token error!")
 	}
 
 	hAndP := arr[0] + "." + arr[1]
 	ss := base64.StdEncoding.EncodeToString(HmacSha256(hAndP, key))
 	if res := strings.Compare(arr[2], ss); res != 0 {
-		return account_.LoginForm{}, errors.New("token error!")
+		return config.LoginForm{}, errors.New("token error!")
 	}
 
 	var payload Payload
 	json.Unmarshal(pay, &payload)
 
-	return account_.LoginForm{payload.Username, payload.Password}, nil
+	return config.LoginForm{payload.Username, payload.Password}, nil
 }
 
 //Header 表示 Jwt 的 header
@@ -109,7 +109,7 @@ type Payload struct {
 }
 
 //New 返回一个特定的 Payload
-func (p *Payload) New(form account_.LoginForm) Payload {
+func (p *Payload) New(form config.LoginForm) Payload {
 	return Payload{
 		Iss:      "redrock",
 		Exp:      strconv.FormatInt(time.Now().Add(3*time.Hour).Unix(), 10),
